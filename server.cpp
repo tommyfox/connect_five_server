@@ -15,8 +15,14 @@
 #include <iostream>
 #include <cerrno>
 
+#include <string>
 #include <boost/lexical_cast.hpp>
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
+#include <boost/system/system_error.hpp>
+#include <boost/system/error_code.hpp>
+
+using boost::asio::ip::tcp;
 
 int main(int argc, char* argv[]) {
   int port;
@@ -37,14 +43,20 @@ int main(int argc, char* argv[]) {
   }
   try
   {
+    boost::array<char, 128> buf;
+    buf.assign(' ');
     boost::asio::io_service io_service;
     tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
     for(;;) {
       tcp::socket socket(io_service);
       acceptor.accept(socket);
 
-      boost::system::error_code ignored_error;
-      boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+      boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
+      while(true) {
+        size_t len = socket.read_some(boost::asio::buffer(buf));
+	std::cout.write(buf.data(), len);
+      }
+
     }
   }
   catch(std::exception& e)
