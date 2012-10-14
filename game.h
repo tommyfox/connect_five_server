@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <stack>
+#include <iostream>
 
 namespace FIAR {
 
@@ -36,7 +37,7 @@ class Game {
       bool checkBounds(const int&, const int&) const;
       COLOR&
         operator() (const int&, const int&) throw (std::out_of_range);
-
+      friend std::ostream& operator<<(std::ostream& os, Game& bo);
     private:
       COLOR* proto_board;
   };
@@ -64,6 +65,7 @@ class Game {
     bool          undo();
     const COLOR&  getStatus() const { return status; }
 
+    friend std::ostream& operator<<(std::ostream& os, Game& b);
   private:
     void calcStatus(const int&, const int&) const;
 
@@ -123,6 +125,28 @@ Game::undo() {
   }
 }
 
+std::ostream& operator<<(std::ostream& os, Game& bo) {
+	COLOR* pieces = bo.board.proto_board;
+	os << "\r;  1 2 3 4 5 6 7 8 9 a b c d e f";
+	os << "\r\n";
+	for(int row = 0; row<15; row++) {
+		if(row<9) os << ";" << row+1 << " ";
+		else if(row == 9) os << ";a ";
+		else if (row == 10) os << ";b ";
+		else if (row == 11) os << ";c ";
+		else if (row == 12) os << ";d ";
+		else if (row == 13) os << ";e ";
+		else if (row == 14) os << ";f ";
+		for(int column = 0; column<15; column++) {
+			if(*pieces==EMPTY) os << "+ ";
+			else if(*pieces==WHITE) os << "O ";
+			else os << "@ ";
+			pieces++;
+		}
+		os << "\r\n";
+	}
+	return os;
+}
 // End namespace FIAR
 }
 
