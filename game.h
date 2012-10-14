@@ -28,7 +28,7 @@ enum COLOR {
 };
 
 enum direction {
-
+	ALL, UP, DOWN, LEFT, RIGHT, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT;
 };
 
 class Game {
@@ -111,7 +111,7 @@ Game::exec(const int& r, const int& c, const COLOR& s) {
     ||  (s == EMPTY)) { return false; }
 
   board(r, c) = s;
-  this->calcStatus(r, c);
+  this->calcStatus(r, c, ALL);
   moves.push(Move(r,c,s));
 
   return true;
