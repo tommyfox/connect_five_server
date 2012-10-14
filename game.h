@@ -130,6 +130,7 @@ std::ostream& operator<<(std::ostream& os, Game& bo) {
 	os << "\r;  1 2 3 4 5 6 7 8 9 a b c d e f";
 	os << "\r\n";
 	for(int row = 0; row<15; row++) {
+		os << "\r";
 		if(row<9) os << ";" << row+1 << " ";
 		else if(row == 9) os << ";a ";
 		else if (row == 10) os << ";b ";

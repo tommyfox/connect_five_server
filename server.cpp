@@ -60,7 +60,7 @@ private:
 void Server::server_loop() {
 try
 	{
-		boost::array<char, 128> buf;
+		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
@@ -72,22 +72,19 @@ try
       			bool first_go = true;
       			display = false;
 			bool is_connected = true;
+			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
 				size_t len = socket.read_some(boost::asio::buffer(buf));
 				// stores the message in client_message
-				std::string client_message = "";
+				client_message = "";
 				for(int i = 0; i<len; i++) {
 					if(buf[i]!=' '&&buf[i]!='\n'&&buf[i]!='\r') client_message += buf[i];
 				}
 				if(client_message.size()!=0) {
-					// ignores the first message, seems to be erroneous?
-					// should figure out why
-					if(!first_go) std::cout << client_message << std::endl;
-        				else first_go = false;
 					// transforms client_message to lowercase
 					std::transform(client_message.begin(), client_message.end(), client_message.begin(), ::tolower);
-					std::cout << "Transformed client message: " << client_message << std::endl;
+					//std::cout << "Transformed client message: " << client_message << std::endl;
 					if(client_message=="exit") {
 						is_connected=false;
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
@@ -121,9 +118,10 @@ try
 				}
 				if(display) {
 					std::stringstream board;
+					board.flush();
 					board << server_game;
 					std::cout << board.str();
-					boost::asio::write(socket, boost::asio::buffer(board.str().c_str()));
+					boost::asio::write(socket, boost::asio::buffer(board.str()));
 				}
 			}
 		}
