@@ -27,6 +27,10 @@ enum COLOR {
   BLACK
 };
 
+enum direction {
+
+};
+
 class Game {
   class Board {
     public:
@@ -66,10 +70,9 @@ class Game {
 
 		Board& getBoard() { return board; }
 
-    //friend std::ostream& operator<<(std::ostream& os, Game& bo);
-  private:
-    void calcStatus(const int&, const int&) const;
+    int calcStatus(const int&, const int&, direction) const;
 
+	private:
     Board             board;
     COLOR             status;
     std::stack<Move>  moves;
