@@ -12,12 +12,14 @@
 \*************************************/
 
 #include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 #include <cerrno>
 
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <time.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
@@ -37,11 +39,6 @@ enum Difficulty {
 	HARD
 };
 
-enum Hex {
-	ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
-	EIGHT, NINE, A, B, C, D, E, F
-};
-
 class Server {
 public:
 	Server(int p) {port = p;}
@@ -54,14 +51,13 @@ private:
 
 	void set_difficulty(Difficulty){}
 	void toggle_display();
-	void undo(){}
-	void move(Hex, Hex){}
 	void comment(std::string){}
 };
 
 void Server::server_loop() {
 try
 	{
+		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
@@ -71,9 +67,9 @@ try
 
       FIAR::Game server_game;
       boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
-      bool first_go = true;
       display = false;
 			bool is_connected = true;
+			bool first_time = true;
 			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
@@ -83,20 +79,21 @@ try
 				for(int i = 0; i<len; i++) {
 					if(buf[i]!=' '&&buf[i]!='\n'&&buf[i]!='\r') client_message += buf[i];
 				}
-				if(client_message.size()!=0) {
+				std::cout << client_message << std::endl;
+				if(!first_time&&client_message.size()!=0) {
 					// transforms client_message to lowercase
 					for(int i = 0; i<client_message.length(); i++) {
 						if(client_message[i]>='A'&&client_message[i]<='Z') client_message[i] += 32;
 					}
-					//std::cout << "Transformed client message: " << client_message << std::endl;
 					if(client_message=="exit") {
 						is_connected=false;
+						display = false;
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
 					else if(client_message=="display") {
 						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-        				}
+        	}
 					else if(client_message=="easy") {
 						set_difficulty(EASY);
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
@@ -110,22 +107,33 @@ try
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
 					else if(client_message=="undo") {
-						undo();
+						server_game.undo();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
 					else if(client_message[0]==';') {
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
 					else if(client_message.size()==2&&is_hex(client_message[0])&&is_hex(client_message[1])) {
-						boost::asio::write(socket, boost::asio::buffer("\rOK, accepted hex move\r\n"));
 						int row, column;
 						column = convert_hex_to_int(client_message[0])-1;
 						row = convert_hex_to_int(client_message[1])-1;
-						server_game.exec(row, column, FIAR::WHITE);
+						if(!server_game.exec(row, column, FIAR::BLACK)) {
+							boost::asio::write(socket, boost::asio::buffer("\rInvalid move\r\n"));
+						}
+						else {
+							boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+							row = rand() % 15;
+							column = rand() % 15;
+							server_game.exec(row, column, FIAR::WHITE);
+						}
 					}
 					else {
 						boost::asio::write(socket, boost::asio::buffer("\rInvalid command\r\n"));
 					}
+				}
+				else {
+					first_time = false;
+					boost::asio::write(socket, boost::asio::buffer("\r"));
 				}
 				if(display) {
 					std::stringstream board;
