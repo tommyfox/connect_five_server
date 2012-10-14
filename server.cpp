@@ -36,25 +36,26 @@ enum Difficulty {
 };
 
 enum Hex {
-	0 = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F
+	ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
+	EIGHT, NINE, A, B, C, D, E, F
 };
 
 class Server {
 public:
 	Server(int p) {port = p;}
 
-	voiid server_loop();
+	void server_loop();
 
 private:
 	int port;
 	bool display;
 
-	void set_difficulty(Difficulty);
+	void set_difficulty(Difficulty){}
 	void toggle_display();
-	void undo();
-	void move(Hex, Hex);
-	void comment(std::string);
-}
+	void undo(){}
+	void move(Hex, Hex){}
+	void comment(std::string){}
+};
 
 void Server::server_loop() {
 try
@@ -84,7 +85,7 @@ try
 				// stores the message in client_message
 				std::string client_message = "";
 				for(int i = 0; i<len; i++) {
-					if(buf[i]!=' ') client_message += buf[i];
+					if(buf[i]!=' '&&buf[i]!='\n'&&buf[i]!='\r') client_message += buf[i];
 				}
 				if(client_message.size()!=0) {
 					// ignores the first message, seems to be erroneous?
@@ -93,12 +94,13 @@ try
         				else first_go = false;
 					// transforms client_message to lowercase
 					std::transform(client_message.begin(), client_message.end(), client_message.begin(), ::tolower);
+					std::cout << "Transformed client message: " << client_message << std::endl;
 					if(client_message=="exit") {
 						is_connected=false;
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
 					else if(client_message=="display") {
-						display_toggle();
+						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
         				}
 					else if(client_message=="easy") {
@@ -120,13 +122,13 @@ try
 					else if(client_message.size()==2&&is_hex(client_message[0])&&is_hex(client_message[1])) {
 						boost::asio::write(socket, boost::asio::buffer("\rOK, accepted hex move\r\n"));
 					}
-					/*else {
+					else {
 						boost::asio::write(socket, boost::asio::buffer("\rInvalid command\r\n"));
-					}*/
+					}
 				}
 			}
 		}
-	
+
 	}
 	catch(std::exception& e)
 	{
@@ -134,7 +136,7 @@ try
 	}
 }
 
-void toggle_display() {
+void Server::toggle_display() {
 	if(display) display = false;
 	else display = true;;
 }
