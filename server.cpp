@@ -29,6 +29,8 @@ using boost::asio::ip::tcp;
 
 bool is_hex(const char& c);
 
+int convert_hex_to_int(char& c);
+
 enum Difficulty {
 	EASY = 0,
 	MEDIUM,
@@ -109,8 +111,15 @@ try
 						undo();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
+					else if(client_message[0]==';') {
+						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+					}
 					else if(client_message.size()==2&&is_hex(client_message[0])&&is_hex(client_message[1])) {
 						boost::asio::write(socket, boost::asio::buffer("\rOK, accepted hex move\r\n"));
+						int row, column;
+						row = convert_hex_to_int(client_message[0]);
+						column = convert_hex_to_int(client_message[1]);
+						server_game.exec(row, column, FIAR::WHITE);
 					}
 					else {
 						boost::asio::write(socket, boost::asio::buffer("\rInvalid command\r\n"));
@@ -163,4 +172,14 @@ int main(int argc, char* argv[]) {
 bool is_hex(const char& c) {
 	if(c>='a'&&c<='f'||c>='0'&&c<='f') return true;
 	return false;
+}
+
+int convert_hex_to_int(char& c) {
+	if(c>='0'&&c<='9') return atoi(&c);
+	else if(c=='a') return 10;
+	else if(c=='b') return 11;
+	else if(c=='c') return 12;
+	else if(c=='d') return 13;
+	else if(c=='e') return 14;
+	else return 15;
 }

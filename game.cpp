@@ -1,5 +1,5 @@
 /*************************************\
- *  Project: Project 2 - Five-in-a-Row 
+ *  Project: Project 2 - Five-in-a-Row
  *
  *  Coder: Chris Polansky
  *  Contact: chris.polansky@tamu.edu
@@ -8,7 +8,7 @@
  *  Compiler: g++-4.6 4.6.3
  *
  *  License: Proprietary
- * 
+ *
 \*************************************/
 
 #include "game.h"
