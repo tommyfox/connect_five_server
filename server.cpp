@@ -29,6 +29,14 @@ using boost::asio::ip::tcp;
 
 bool is_hex(const char& c);
 
+class Server {
+public:
+	Server(int p) {port = p;}
+private:
+	int port;
+
+}
+
 int main(int argc, char* argv[]) {
   int port;
   if(argc != 2) {
