@@ -73,13 +73,6 @@ try
       			display = false;
 			bool is_connected = true;
 			while(is_connected) {
-				if(display) {
-					std::stringstream board;
-					board << server_game;
-					std::cout << board.str();
-					boost::asio::write(socket, boost::asio::buffer(board.str().c_str()));
-				}
-
 				// reads data from the socket
 				size_t len = socket.read_some(boost::asio::buffer(buf));
 				// stores the message in client_message
@@ -125,6 +118,12 @@ try
 					else {
 						boost::asio::write(socket, boost::asio::buffer("\rInvalid command\r\n"));
 					}
+				}
+				if(display) {
+					std::stringstream board;
+					board << server_game;
+					std::cout << board.str();
+					boost::asio::write(socket, boost::asio::buffer(board.str().c_str()));
 				}
 			}
 		}
