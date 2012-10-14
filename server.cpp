@@ -1,5 +1,5 @@
 /*************************************\
- *  Project: Project 2 - Five-in-a-Row 
+ *  Project: Project 2 - Five-in-a-Row
  *
  *  Coder: Chris Polansky
  *  Contact: chris.polansky@tamu.edu
@@ -8,7 +8,7 @@
  *  Compiler: g++-4.6 4.6.3
  *
  *  License: Proprietary
- * 
+ *
 \*************************************/
 
 #include <cstdlib>
@@ -64,13 +64,13 @@ try
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
-      			tcp::socket socket(io_service);
-      			acceptor.accept(socket);
+    	tcp::socket socket(io_service);
+      acceptor.accept(socket);
 
-      			FIAR::Game server_game;
-      			boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
-      			bool first_go = true;
-      			display = false;
+      FIAR::Game server_game;
+      boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
+      bool first_go = true;
+      display = false;
 			bool is_connected = true;
 			std::string client_message;
 			while(is_connected) {
@@ -125,7 +125,6 @@ try
 				}
 			}
 		}
-
 	}
 	catch(std::exception& e)
 	{
