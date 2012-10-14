@@ -1,5 +1,5 @@
 /*************************************\
- *  Project: Project 2 - Five-in-a-Row 
+ *  Project: Project 2 - Five-in-a-Row
  *
  *  Coder: Chris Polansky
  *  Contact: chris.polansky@tamu.edu
@@ -8,7 +8,7 @@
  *  Compiler: g++-4.6 4.6.3
  *
  *  License: Proprietary
- * 
+ *
 \*************************************/
 
 #ifndef _GAME_H_
@@ -27,7 +27,6 @@ enum COLOR {
   BLACK
 };
 
-
 class Game {
   class Board {
     public:
@@ -37,7 +36,7 @@ class Game {
       bool checkBounds(const int&, const int&) const;
       COLOR&
         operator() (const int&, const int&) throw (std::out_of_range);
-      friend std::ostream& operator<<(std::ostream& os, Game& bo);
+			//friend std::ostream& operator<<(std::ostream& os, Game& bo);
     private:
       COLOR* proto_board;
   };
@@ -65,7 +64,9 @@ class Game {
     bool          undo();
     const COLOR&  getStatus() const { return status; }
 
-    friend std::ostream& operator<<(std::ostream& os, Game& b);
+		Board& getBoard() { return board; }
+
+    //friend std::ostream& operator<<(std::ostream& os, Game& bo);
   private:
     void calcStatus(const int&, const int&) const;
 
@@ -96,7 +97,7 @@ inline COLOR&
 Game::Board::operator() (const int& r, const int& c) throw (std::out_of_range) {
   if(!(this->checkBounds(r, c)))
     throw std::out_of_range("operator() subscript out of bounds.");
-  return proto_board[(r*14) + c];
+  return proto_board[(r*15) + c];
 }
 
 inline bool
@@ -124,6 +125,8 @@ Game::undo() {
     return false;
   }
 }
+
+std::ostream& operator<<(std::ostream&, Game& bo);
 
 // End namespace FIAR
 }

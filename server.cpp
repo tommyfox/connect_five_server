@@ -85,7 +85,9 @@ try
 				}
 				if(client_message.size()!=0) {
 					// transforms client_message to lowercase
-					std::transform(client_message.begin(), client_message.end(), client_message.begin(), ::tolower);
+					for(int i = 0; i<client_message.length(); i++) {
+						if(client_message[i]>='A'&&client_message[i]<='Z') client_message[i] += 32;
+					}
 					//std::cout << "Transformed client message: " << client_message << std::endl;
 					if(client_message=="exit") {
 						is_connected=false;
@@ -117,8 +119,8 @@ try
 					else if(client_message.size()==2&&is_hex(client_message[0])&&is_hex(client_message[1])) {
 						boost::asio::write(socket, boost::asio::buffer("\rOK, accepted hex move\r\n"));
 						int row, column;
-						row = convert_hex_to_int(client_message[0]);
-						column = convert_hex_to_int(client_message[1]);
+						column = convert_hex_to_int(client_message[0])-1;
+						row = convert_hex_to_int(client_message[1])-1;
 						server_game.exec(row, column, FIAR::WHITE);
 					}
 					else {
@@ -175,7 +177,7 @@ bool is_hex(const char& c) {
 }
 
 int convert_hex_to_int(char& c) {
-	if(c>='0'&&c<='9') return atoi(&c);
+	if(c>='0'&&c<='9') return c-48;
 	else if(c=='a') return 10;
 	else if(c=='b') return 11;
 	else if(c=='c') return 12;
