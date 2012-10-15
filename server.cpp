@@ -55,8 +55,8 @@ private:
 };
 
 void Server::server_loop() throw(std::out_of_range) {
-/*try
-	{*/
+try
+	{
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
@@ -94,6 +94,12 @@ void Server::server_loop() throw(std::out_of_range) {
 						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
         	}
+					else if(client_message=="human-ai") {
+						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+					}
+					else if(client_message.substring(0,5)=="ai-ai") {
+						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+					}
 					else if(client_message=="easy") {
 						set_difficulty(EASY);
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
@@ -146,9 +152,9 @@ void Server::server_loop() throw(std::out_of_range) {
 										display=false;
 									}
 								}
-								/*else {
+								else {
 									boost::asio::write(socket, boost::asio::buffer("\rOur AI messed up, have a free move!\r\n"));
-								}*/
+								}
 							}
 						}
 					}
@@ -169,11 +175,11 @@ void Server::server_loop() throw(std::out_of_range) {
 				}
 			}
 		}
-	//}
-/*	catch(std::exception& e)
+	}
+	catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-	}*/
+	}
 }
 
 void Server::toggle_display() {
