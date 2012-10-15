@@ -25,6 +25,7 @@
 #include <boost/asio.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/system/error_code.hpp>
+#include "server.h"
 #include "game.h"
 
 using boost::asio::ip::tcp;
@@ -33,7 +34,7 @@ bool is_hex(const char& c);
 
 int convert_hex_to_int(char& c);
 char convert_int_to_hex(int i);
-
+/*
 enum Difficulty {
 	EASY = 0,
 	MEDIUM,
@@ -52,8 +53,8 @@ private:
 
 	void set_difficulty(Difficulty){}
 	void toggle_display();
-	void comment(std::string){}
-};
+	void help();
+};*/
 
 void Server::server_loop() throw(std::out_of_range) {
 	try
@@ -165,6 +166,9 @@ void Server::server_loop() throw(std::out_of_range) {
 							}
 						}
 					}
+					else if(client_message=="help") {
+						help();
+					}
 					else {
 						boost::asio::write(socket, boost::asio::buffer("\rInvalid command\r\n"));
 					}
@@ -192,6 +196,10 @@ void Server::server_loop() throw(std::out_of_range) {
 void Server::toggle_display() {
 	if(display) display = false;
 	else display = true;;
+}
+
+void Server::help() {
+	//boost::asio::write(socket, boost::asio::buffer(" "));
 }
 
 int main(int argc, char* argv[]) {
