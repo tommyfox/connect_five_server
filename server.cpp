@@ -125,24 +125,30 @@ void Server::server_loop() throw(std::out_of_range) {
 							int player_connected;
 							player_connected = server_game.calcStatus(row,column,FIAR::ALL);
 							std::cout << player_connected << std::endl;
+							bool ai_valid_move = false;
 							if(player_connected>=5) {
-								boost::asio::write(socket, boost::asio::buffer("\rYou've won!\r\n"));
+								std::stringstream board;
+								board << server_game << "\rYou've won!\r\n";
+								boost::asio::write(socket, boost::asio::buffer(board.str()));
 								display=false;
 							}
-							else {
+							else while(!ai_valid_move) {
 								int row2 = rand() % 14;
 								int column2 = rand() % 14;
 								if(server_game.exec(row2, column2, FIAR::WHITE)) {
+									ai_valid_move = true;
 									int AI_connected;
 									AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
 									if(AI_connected>=5) {
-										boost::asio::write(socket, boost::asio::buffer("\rYou've lost :(\r\n"));
+										std::stringstream board;
+										board << server_game << "\rYou've lost :(\r\n";
+										boost::asio::write(socket, boost::asio::buffer(board.str()));
 										display=false;
 									}
 								}
-								else {
+								/*else {
 									boost::asio::write(socket, boost::asio::buffer("\rOur AI messed up, have a free move!\r\n"));
-								}
+								}*/
 							}
 						}
 					}
