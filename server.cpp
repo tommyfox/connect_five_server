@@ -56,25 +56,30 @@ private:
 };
 
 void Server::server_loop() throw(std::out_of_range) {
-try
+	try
 	{
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
-    	tcp::socket socket(io_service);
-      acceptor.accept(socket);
-
-      FIAR::Game server_game;
-      boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
-      display = false;
+			tcp::socket socket(io_service);
+			acceptor.accept(socket);
+			FIAR::Game server_game;
+			boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
+			display = false;
 			bool is_connected = true;
 			bool first_time = true;
 			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
-				size_t len = socket.read_some(boost::asio::buffer(buf));
+				size_t len;
+				try {
+					len = socket.read_some(boost::asio::buffer(buf));
+				}
+				catch (...)  {
+					len = 0;
+				}
 				// stores the message in client_message
 				std::stringstream ai_move;
 				client_message = "";
@@ -95,7 +100,7 @@ try
 					else if(client_message=="display") {
 						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-        	}
+					}
 					else if(client_message=="human-ai") {
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
 					}
@@ -212,7 +217,7 @@ int main(int argc, char* argv[]) {
 }
 
 bool is_hex(const char& c) {
-	if(c>='a'&&c<='f'||c>='0'&&c<='f') return true;
+	if(c>='a'&&c<='f'||c>='0'&&c<='9') return true;
 	return false;
 }
 
