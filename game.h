@@ -28,7 +28,7 @@ enum COLOR {
 };
 
 enum direction {
-	ALL, UP, DOWN, LEFT, RIGHT, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT;
+	ALL, UP, DOWN, LEFT, RIGHT, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT
 };
 
 class Game {
@@ -39,7 +39,7 @@ class Game {
 
       bool checkBounds(const int&, const int&) const;
       COLOR&
-        operator() (const int&, const int&) throw (std::out_of_range);
+        operator() (const int&, const int&) const throw (std::out_of_range);
 			//friend std::ostream& operator<<(std::ostream& os, Game& bo);
     private:
       COLOR* proto_board;
@@ -97,7 +97,7 @@ inline bool Game::Board::checkBounds(const int& r, const int& c) const {
 }
 
 inline COLOR&
-Game::Board::operator() (const int& r, const int& c) throw (std::out_of_range) {
+Game::Board::operator() (const int& r, const int& c) const throw (std::out_of_range) {
   if(!(this->checkBounds(r, c)))
     throw std::out_of_range("operator() subscript out of bounds.");
   return proto_board[(r*15) + c];

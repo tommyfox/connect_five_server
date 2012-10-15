@@ -43,7 +43,7 @@ class Server {
 public:
 	Server(int p) {port = p;}
 
-	void server_loop();
+	void server_loop() throw(std::out_of_range);
 
 private:
 	int port;
@@ -54,9 +54,9 @@ private:
 	void comment(std::string){}
 };
 
-void Server::server_loop() {
-try
-	{
+void Server::server_loop() throw(std::out_of_range) {
+/*try
+	{*/
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
@@ -122,9 +122,26 @@ try
 						}
 						else {
 							boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-							row = rand() % 15;
-							column = rand() % 15;
-							server_game.exec(row, column, FIAR::WHITE);
+							int player_connected;
+							player_connected = server_game.calcStatus(row,column,FIAR::ALL);
+							std::cout << player_connected << std::endl;
+							if(player_connected>=4) {
+								boost::asio::write(socket, boost::asio::buffer("\rYou've won!\r\n"));
+							}
+							else {
+								int row2 = rand() % 14;
+								int column2 = rand() % 14;
+								if(server_game.exec(row2, column2, FIAR::WHITE)) {
+									int AI_connected;
+									AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
+									if(AI_connected>=4) {
+										boost::asio::write(socket, boost::asio::buffer("\rYou've lost :(\r\n"));
+									}
+								}
+								else {
+									boost::asio::write(socket, boost::asio::buffer("\rOur AI messed up, have a free move!\r\n"));
+								}
+							}
 						}
 					}
 					else {
@@ -139,16 +156,16 @@ try
 					std::stringstream board;
 					board.flush();
 					board << server_game;
-					std::cout << board.str();
+					//std::cout << board.str();
 					boost::asio::write(socket, boost::asio::buffer(board.str()));
 				}
 			}
 		}
-	}
-	catch(std::exception& e)
+	//}
+/*	catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-	}
+	}*/
 }
 
 void Server::toggle_display() {
