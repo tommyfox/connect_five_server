@@ -32,6 +32,7 @@ using boost::asio::ip::tcp;
 bool is_hex(const char& c);
 
 int convert_hex_to_int(char& c);
+char convert_int_to_hex(int i);
 
 enum Difficulty {
 	EASY = 0,
@@ -55,25 +56,33 @@ private:
 };
 
 void Server::server_loop() throw(std::out_of_range) {
-	/*try
-	{*/
+	try
+	{
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
-	    		tcp::socket socket(io_service);
-	      		acceptor.accept(socket);
-	      		FIAR::Game server_game;
-	      		boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
-	      		display = false;
+			tcp::socket socket(io_service);
+			acceptor.accept(socket);
+			FIAR::Game server_game;
+			boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
+			display = false;
 			bool is_connected = true;
 			bool first_time = true;
 			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
-				size_t len = socket.read_some(boost::asio::buffer(buf));
+				size_t len;
+				try {
+					len = socket.read_some(boost::asio::buffer(buf));
+				}
+				catch (...)  {
+					len = 0;
+					is_connected=false;
+				}
 				// stores the message in client_message
+				std::stringstream ai_move;
 				client_message = "";
 				for(int i = 0; i<len; i++) {
 					if(buf[i]!=' '&&buf[i]!='\n'&&buf[i]!='\r') client_message += buf[i];
@@ -92,7 +101,13 @@ void Server::server_loop() throw(std::out_of_range) {
 					else if(client_message=="display") {
 						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-	        			}
+					}
+					else if(client_message=="human-ai") {
+						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+					}
+					else if(client_message.substr(0,5)=="ai-ai") {
+						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
+					}
 					else if(client_message=="easy") {
 						set_difficulty(EASY);
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
@@ -121,20 +136,27 @@ void Server::server_loop() throw(std::out_of_range) {
 						}
 						else {
 							boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-							int player_connected;
-							player_connected = server_game.calcStatus(row,column,FIAR::ALL);
+							int player_connected = server_game.calcStatus(row,column,FIAR::ALL);
 							std::cout << player_connected << std::endl;
+							bool ai_valid_move = false;
 							if(player_connected>=5) {
-								boost::asio::write(socket, boost::asio::buffer("\rYou've won!\r\n"));
+								std::stringstream board;
+								board << server_game << "\rYou've won!\r\n";
+								if(display) boost::asio::write(socket, boost::asio::buffer(board.str()));
+								display=false;
 							}
-							else {
+							else while(!ai_valid_move) {
 								int row2 = rand() % 14;
 								int column2 = rand() % 14;
 								if(server_game.exec(row2, column2, FIAR::WHITE)) {
-								int AI_connected;
-									AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
+									ai_move << "\r" << convert_int_to_hex(column2+1) << convert_int_to_hex(row2+1) << "\r\n";
+									ai_valid_move = true;
+									int AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
 									if(AI_connected>=5) {
-										boost::asio::write(socket, boost::asio::buffer("\rYou've lost :(\r\n"));
+										std::stringstream board;
+										board << server_game << "\rYou've lost :(\r\n";
+										boost::asio::write(socket, boost::asio::buffer(board.str()));
+										display=false;
 									}
 								}
 								else {
@@ -154,17 +176,17 @@ void Server::server_loop() throw(std::out_of_range) {
 				if(display) {
 					std::stringstream board;
 					board.flush();
-					board << server_game;
+					board << server_game << ai_move.str();
 					//std::cout << board.str();
 					boost::asio::write(socket, boost::asio::buffer(board.str()));
 				}
 			}
 		}
-	//}
-	/*catch(std::exception& e)
+	}
+	catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-	}*/
+	}
 }
 
 void Server::toggle_display() {
@@ -196,7 +218,7 @@ int main(int argc, char* argv[]) {
 }
 
 bool is_hex(const char& c) {
-	if(c>='a'&&c<='f'||c>='0'&&c<='f') return true;
+	if(c>='a'&&c<='f'||c>='0'&&c<='9') return true;
 	return false;
 }
 
@@ -208,4 +230,14 @@ int convert_hex_to_int(char& c) {
 	else if(c=='d') return 13;
 	else if(c=='e') return 14;
 	else return 15;
+}
+
+char convert_int_to_hex(int i) {
+	if(i>=0&&i<=9) return i+48;
+	else if(i==10) return 'a';
+	else if(i==11) return 'b';
+	else if(i==12) return 'c';
+	else if(i==13) return 'd';
+	else if(i==14) return 'e';
+	else return 'f';
 }
