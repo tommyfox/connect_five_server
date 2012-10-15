@@ -1,4 +1,3 @@
-
 /*************************************\
  *  Project: Project 2 - Five-in-a-Row
  *
@@ -33,9 +32,35 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 		else if(board.checkBounds(row,c)) {
 			row_count = 0;
 		}
-		if(row_count>=5) break;
+		if(row_count>=5) return row_count;
 	}
-
+	for(int column = c-4; column<c+4; column++) {
+		if(board.checkBounds(r,column) && board(r,column)==center) {
+			column_count++;
+		}
+		else if(board.checkBounds(r,column)) {
+			column_count = 0;
+		}
+		if(column_count>=5) return column_count;
+	}
+	for(int row = r-4; row<r+4; row++) {
+		if(board.checkBounds(r+row,c+row) && board(r+row,c+row)==center) {
+			positive_count++;
+		}
+		else if(board.checkBounds(r+row,c+row)) {
+			positive_count = 0;
+		}
+		if(positive_count>=5) return positive_count;
+	}
+	for(int row = r-4; row<r+4; row++) {
+		if(board.checkBounds(r+row,-c+row) && board(r+row,-c+row)==center) {
+			negative_count++;
+		}
+		else if(board.checkBounds(r+row,-c+row)) {
+			negative_count = 0;
+		}
+		if(negative_count>=5) return negative_count;
+	}
 
 }
 
