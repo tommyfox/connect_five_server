@@ -55,19 +55,18 @@ private:
 };
 
 void Server::server_loop() throw(std::out_of_range) {
-/*try
+	/*try
 	{*/
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
-    	tcp::socket socket(io_service);
-      acceptor.accept(socket);
-
-      FIAR::Game server_game;
-      boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
-      display = false;
+	    		tcp::socket socket(io_service);
+	      		acceptor.accept(socket);
+	      		FIAR::Game server_game;
+	      		boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
+	      		display = false;
 			bool is_connected = true;
 			bool first_time = true;
 			std::string client_message;
@@ -93,7 +92,7 @@ void Server::server_loop() throw(std::out_of_range) {
 					else if(client_message=="display") {
 						toggle_display();
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
-        	}
+	        			}
 					else if(client_message=="easy") {
 						set_difficulty(EASY);
 						boost::asio::write(socket, boost::asio::buffer("\rOK\r\n"));
@@ -132,7 +131,7 @@ void Server::server_loop() throw(std::out_of_range) {
 								int row2 = rand() % 14;
 								int column2 = rand() % 14;
 								if(server_game.exec(row2, column2, FIAR::WHITE)) {
-									int AI_connected;
+								int AI_connected;
 									AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
 									if(AI_connected>=5) {
 										boost::asio::write(socket, boost::asio::buffer("\rYou've lost :(\r\n"));
@@ -162,7 +161,7 @@ void Server::server_loop() throw(std::out_of_range) {
 			}
 		}
 	//}
-/*	catch(std::exception& e)
+	/*catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}*/
