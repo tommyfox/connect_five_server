@@ -79,6 +79,7 @@ void Server::server_loop() throw(std::out_of_range) {
 				}
 				catch (...)  {
 					len = 0;
+					is_connected=false;
 				}
 				// stores the message in client_message
 				std::stringstream ai_move;
