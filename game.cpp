@@ -25,7 +25,8 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 	int column_count=0;
 	int positive_count=0;
 	int negative_count=0;
-	for(int row = r-4; row<r+4; row++) {
+	// row
+	for(int row = r-4; row<=r+4; row++) {
 		if(board.checkBounds(row,c) && board(row,c)==center) {
 			row_count++;
 		}
@@ -34,7 +35,8 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 		}
 		if(row_count>=5) return row_count;
 	}
-	for(int column = c-4; column<c+4; column++) {
+	// column
+	for(int column = c-4; column<=c+4; column++) {
 		if(board.checkBounds(r,column) && board(r,column)==center) {
 			column_count++;
 		}
@@ -43,25 +45,27 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 		}
 		if(column_count>=5) return column_count;
 	}
-	for(int row = r-4; row<r+4; row++) {
+	// negative slope
+	for(int row = -4; row<=4; row++) {
 		if(board.checkBounds(r+row,c+row) && board(r+row,c+row)==center) {
-			positive_count++;
-		}
-		else if(board.checkBounds(r+row,c+row)) {
-			positive_count = 0;
-		}
-		if(positive_count>=5) return positive_count;
-	}
-	for(int row = r-4; row<r+4; row++) {
-		if(board.checkBounds(r+row,-c+row) && board(r+row,-c+row)==center) {
 			negative_count++;
 		}
-		else if(board.checkBounds(r+row,-c+row)) {
+		else if(board.checkBounds(r+row,c+row)) {
 			negative_count = 0;
 		}
 		if(negative_count>=5) return negative_count;
 	}
-
+	// positive slope
+	for(int row = -4; row<=4; row++) {
+		if(board.checkBounds(r-row,c+row) && board(r-row,c+row)==center) {
+			positive_count++;
+		}
+		else if(board.checkBounds(r-row,c+row)) {
+			positive_count = 0;
+		}
+		if(positive_count>=5) return positive_count;
+	}
+	return std::max(std::max(row_count,column_count),std::max(positive_count,negative_count));
 }
 
 /*

@@ -125,7 +125,7 @@ void Server::server_loop() throw(std::out_of_range) {
 							int player_connected;
 							player_connected = server_game.calcStatus(row,column,FIAR::ALL);
 							std::cout << player_connected << std::endl;
-							if(player_connected>=4) {
+							if(player_connected>=5) {
 								boost::asio::write(socket, boost::asio::buffer("\rYou've won!\r\n"));
 							}
 							else {
@@ -134,7 +134,7 @@ void Server::server_loop() throw(std::out_of_range) {
 								if(server_game.exec(row2, column2, FIAR::WHITE)) {
 									int AI_connected;
 									AI_connected = server_game.calcStatus(row2,column2,FIAR::ALL);
-									if(AI_connected>=4) {
+									if(AI_connected>=5) {
 										boost::asio::write(socket, boost::asio::buffer("\rYou've lost :(\r\n"));
 									}
 								}
