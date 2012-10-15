@@ -39,11 +39,11 @@ void Server::server_loop() throw(std::out_of_range) {
 	try
 	{
 		srand(time(NULL));
-		FIAR::Game* server_game = new FIAR::Game;
 		boost::array<char, 400> buf;
 		boost::asio::io_service io_service;
 		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
 		for(;;) {
+			FIAR::Game* server_game = new FIAR::Game;
 			tcp::socket socket(io_service);
 			acceptor.accept(socket);
 			boost::asio::write(socket,boost::asio::buffer("WELCOME\n"));
@@ -182,8 +182,9 @@ void Server::server_loop() throw(std::out_of_range) {
 					boost::asio::write(socket, boost::asio::buffer(board.str()));
 				}
 			}
+			delete server_game;
 		}
-		delete server_game;
+		//delete server_game;
 	}
 	catch(std::exception& e)
 	{
