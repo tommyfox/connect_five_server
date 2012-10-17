@@ -112,7 +112,7 @@ void Server::server_loop() {
 						}
 						else {
 							write_to_socket("\rOK\r\n");
-							int player_connected = server_game->calcStatus(row,column,FIAR::ALL);
+							int player_connected = server_game->calcStatus(row,column);
 							std::cout << player_connected << std::endl;
 							bool ai_valid_move = false;
 							if(player_connected>=5) {
@@ -125,7 +125,7 @@ void Server::server_loop() {
 								if(server_game->exec(row2, column2, FIAR::WHITE)) {
 									ai_move << "\r" << convert_int_to_hex(row2+1) << convert_int_to_hex(column2+1) << "\r\n";
 									ai_valid_move = true;
-									int AI_connected = server_game->calcStatus(row2,column2,FIAR::ALL);
+									int AI_connected = server_game->calcStatus(row2,column2);
 									if(AI_connected>=5) {
 										display=false;
 										game_state=SERVERWIN;
@@ -152,7 +152,7 @@ void Server::server_loop() {
 				else {
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");
-						server_game = new FIAR::Game;
+						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
 						game_state = INPROGRESS;
 					}
 					else if(client_message=="n") {
