@@ -1,3 +1,5 @@
+#include "game.h"
+
 using boost::asio::ip::tcp;
 
 enum Difficulty {
@@ -6,38 +8,48 @@ enum Difficulty {
   HARD
 };
 
+enum GameState {
+  INPROGRESS,
+  SERVERWIN,
+  CLIENTWIN,
+  TIE
+};
+
 class Server {
 public:
   Server(int p)
-  : port(p) /*server_acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)),*/
-    /*server_socket(server_io_service)*/ {server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
-  server_socket = new tcp::socket(server_io_service);
+  : port(p)
+  {  server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
+     server_socket = new tcp::socket(server_io_service);
+     server_game = new FIAR::Game;
   }
+
+  ~Server() { delete server_acceptor; delete server_socket; delete server_game; }
 
   void server_loop();
 
 private:
   int 				port;
   bool				display;
+  FIAR::Game*			server_game;
 
   boost::asio::io_service 	server_io_service;
   tcp::socket* 			server_socket;
   tcp::acceptor* 		server_acceptor;
 
+  void display_board(std::string ai_move);
+
   void reset_connection() {
     if(server_acceptor->is_open()) {
-      std::cerr << "server acceptor is open\n";
       delete server_acceptor;
-      std::cerr << "server acceptor is closed\n";
       server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port));
     }
     if(server_socket->is_open()) {
-std::cerr << "server socket is open\n";
       delete server_socket;
       server_socket = new tcp::socket(server_io_service);
     }
-    //server_socket.open(tcp::v4());
     server_acceptor->accept(*server_socket);
+    server_game = new FIAR::Game;
   }
 
   void write_to_socket(std::string message) {

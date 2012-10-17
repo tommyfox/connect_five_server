@@ -26,7 +26,6 @@
 #include <boost/system/system_error.hpp>
 #include <boost/system/error_code.hpp>
 #include "server.h"
-#include "game.h"
 
 using boost::asio::ip::tcp;
 
@@ -41,16 +40,14 @@ void Server::server_loop() {
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		for(;;) {
-			FIAR::Game* server_game = new FIAR::Game;
 			reset_connection();
-			//server_acceptor.accept(server_socket);
 			write_to_socket("WELCOME\n");
 			display = false;
 			bool is_connected = true;
-			bool game_over = false;
+			GameState game_state = INPROGRESS;
+			//bool game_over = false;
 			std::string client_message;
 			while(is_connected) {
-				if(game_over) write_to_socket("\rWould you like to play again?\r\n");
 				// reads data from the socket
 				size_t len;
 				try {
@@ -61,13 +58,13 @@ void Server::server_loop() {
 					is_connected=false;
 				}
 				// stores the message in client_message
-				std::stringstream ai_move;
 				client_message = "";
 				for(int i = 0; i<len; i++) {
 					if(buf[i]!=' '&&buf[i]!='\n'&&buf[i]!='\r') client_message += buf[i];
 				}
 				std::cout << client_message << std::endl;
-				if(client_message.size()!=0&&!game_over) {
+				std::stringstream ai_move;
+				if(client_message.size()!=0&&game_state==INPROGRESS) {
 					// transforms client_message to lowercase
 					for(int i = 0; i<client_message.length(); i++) {
 						if(client_message[i]>='A'&&client_message[i]<='Z') client_message[i] += 32;
@@ -119,11 +116,8 @@ void Server::server_loop() {
 							std::cout << player_connected << std::endl;
 							bool ai_valid_move = false;
 							if(player_connected>=5) {
-								std::stringstream board;
-								board << *server_game << "\rYou've won!\r\n";
-								if(display) write_to_socket(board.str());
 								display=false;
-								game_over=true;
+								game_state=CLIENTWIN;
 							}
 							else while(!ai_valid_move) {
 								int row2 = rand() % 14;
@@ -133,11 +127,9 @@ void Server::server_loop() {
 									ai_valid_move = true;
 									int AI_connected = server_game->calcStatus(row2,column2,FIAR::ALL);
 									if(AI_connected>=5) {
-										std::stringstream board;
-										board << *server_game << "\rYou've lost :(\r\n";
-										write_to_socket(board.str());
+										write_to_socket("\rYou've lost :(\r\n");
 										display=false;
-										game_over = true;
+										game_state=SERVERWIN;
 									}
 								}
 								else {
@@ -153,11 +145,12 @@ void Server::server_loop() {
 						write_to_socket("\rInvalid command\r\n");
 					}
 				}
+				// if the game_over flag is set
 				else {
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");
 						server_game = new FIAR::Game;
-						game_over = false;
+						game_state = INPROGRESS;
 					}
 					else if(client_message=="n") {
 						write_to_socket("\rOK, disconnecting\r\n");
@@ -167,22 +160,36 @@ void Server::server_loop() {
 						write_to_socket("\rInvalid command\r\n");
 					}
 				}
-				if(display) {
-					std::stringstream board;
-					board.flush();
-					board << *server_game << ai_move.str();
-					//std::cout << board.str();
-					write_to_socket(board.str());
+				if(game_state==CLIENTWIN) {
+					ai_move.flush();
+					ai_move << "\rYou've won!\r\nWould you like to play again? (y/n)\r\n";
 				}
+				else if(game_state==SERVERWIN) {
+					ai_move.flush();
+					ai_move << "\rYou've lost :(\r\nWould you like to play again? (y/n)\r\n";
+				}
+				else if(game_state==TIE) {
+					ai_move.flush();
+					ai_move << "\rIt's a tie!\r\nWould you like to play again? (y/n)\r\n";
+				}
+				display_board(ai_move.str());
+				ai_move.flush();
 			}
-//			reset_connection();
-			delete server_game;
 		}
 	}
 	catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
+}
+
+void Server::display_board(std::string ai_move) {
+	if(display) {
+		std::stringstream board;
+		board << *server_game << ai_move;
+		write_to_socket(board.str());
+	}
+	else write_to_socket(ai_move);
 }
 
 void Server::toggle_display() {
