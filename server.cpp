@@ -127,13 +127,16 @@ void Server::server_loop() {
 									ai_valid_move = true;
 									int AI_connected = server_game->calcStatus(row2,column2,FIAR::ALL);
 									if(AI_connected>=5) {
-										write_to_socket("\rYou've lost :(\r\n");
 										display=false;
 										game_state=SERVERWIN;
 									}
 								}
 								else {
 									write_to_socket("\rOur AI messed up, have a free move!\r\n");
+								}
+								if(server_game->getNumberOfMoves() >= 225) {
+									game_state=TIE;
+									display=false;
 								}
 							}
 						}
@@ -145,7 +148,7 @@ void Server::server_loop() {
 						write_to_socket("\rInvalid command\r\n");
 					}
 				}
-				// if the game_over flag is set
+				// if the game_status flag is not INPROGRESS
 				else {
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");

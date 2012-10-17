@@ -72,6 +72,8 @@ class Game {
 
     int calcStatus(const int&, const int&, direction) const;
 
+    int getNumberOfMoves() { return moves.size(); }
+
 	private:
     Board             board;
     COLOR             status;
