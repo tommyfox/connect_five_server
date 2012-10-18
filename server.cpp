@@ -51,7 +51,6 @@ void Server::server_loop() {
 			write_to_socket("WELCOME\n");
 			display = false;
 			bool is_connected = true;
-			GameState game_state = INPROGRESS;
 			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
@@ -70,7 +69,7 @@ void Server::server_loop() {
 				}
 				std::cout << client_message << std::endl;
 				std::stringstream ai_move;
-				if(client_message.size()!=0&&game_state==INPROGRESS) {
+				if(client_message.size()!=0&&server_game->getStatus()==FIAR::NOBODY) {
 					// transforms client_message to lowercase
 					for(int i = 0; i<client_message.length(); i++) {
 						if(client_message[i]>='A'&&client_message[i]<='Z') client_message[i] += 32;
@@ -118,33 +117,6 @@ void Server::server_loop() {
 						}
 						else {
 							write_to_socket("\rOK\r\n");
-							int player_connected = server_game->calcStatus(row,column);
-							std::cout << player_connected << std::endl;
-							bool ai_valid_move = false;
-							if(player_connected>=5) {
-								display=false;
-								game_state=CLIENTWIN;
-							}
-							else while(!ai_valid_move) {
-								int row2 = rand() % 14;
-								int column2 = rand() % 14;
-								if(server_game->exec(row2, column2, FIAR::WHITE)) {
-									ai_move << "\r" << convert_int_to_hex(row2+1) << convert_int_to_hex(column2+1) << "\r\n";
-									ai_valid_move = true;
-									int AI_connected = server_game->calcStatus(row2,column2);
-									if(AI_connected>=5) {
-										display=false;
-										game_state=SERVERWIN;
-									}
-								}
-								else {
-									write_to_socket("\rOur AI messed up, have a free move!\r\n");
-								}
-								if(server_game->getNumberOfMoves() >= 225) {
-									game_state=TIE;
-									display=false;
-								}
-							}
 						}
 					}
 					else if(client_message=="help") {
@@ -155,29 +127,30 @@ void Server::server_loop() {
 					}
 				}
 				// if the game_status flag is not INPROGRESS
-				else if (game_state!=INPROGRESS) {
+				else if (server_game->getStatus()!=FIAR::NOBODY) {
+					display = false;
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");
 						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
-						game_state = INPROGRESS;
 					}
 					else if(client_message=="n") {
 						write_to_socket("\rOK, disconnecting\r\n");
 						is_connected = false;
+						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
 					}
 					else {
 						write_to_socket("\rInvalid command\r\n");
 					}
 				}
-				if(game_state==CLIENTWIN) {
+				if(server_game->getStatus()==FIAR::BLACK_WIN) {
 					ai_move.flush();
 					ai_move << "\rYou've won!\r\nWould you like to play again? (y/n)\r\n";
 				}
-				else if(game_state==SERVERWIN) {
+				else if(server_game->getStatus()==FIAR::WHITE_WIN) {
 					ai_move.flush();
 					ai_move << "\rYou've lost :(\r\nWould you like to play again? (y/n)\r\n";
 				}
-				else if(game_state==TIE) {
+				else if(server_game->getStatus()==FIAR::TIE) {
 					ai_move.flush();
 					ai_move << "\rIt's a tie!\r\nWould you like to play again? (y/n)\r\n";
 				}
@@ -198,7 +171,7 @@ void Server::display_board(std::string ai_move) {
 		board << *server_game << ai_move;
 		write_to_socket(board.str());
 	}
-	else write_to_socket(ai_move);
+	else if(server_game->getStatus()!=FIAR::NOBODY) write_to_socket(ai_move);
 }
 
 void Server::toggle_display() {

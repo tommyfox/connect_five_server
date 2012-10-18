@@ -8,13 +8,6 @@ enum Difficulty {
   HARD
 };
 
-enum GameState {
-  INPROGRESS,
-  SERVERWIN,
-  CLIENTWIN,
-  TIE
-};
-
 class Server {
 public:
   Server(int p);
