@@ -68,47 +68,7 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 	return std::max(std::max(row_count,column_count),std::max(positive_count,negative_count));
 }
 
-/*
-int Game::calcStatus(const int& r, const int& c, direction dir) const {
-	if(!board.checkBounds(r,c)) return 0;
-
-	bool left_side=false, right_side=false, top_side=false, bottom_side=false;
-	if(r<=0) top_side = true;
-	if(r>14) bottom_side = true;
-	if(c<=0) left_side = true;
-	if(c>14) right_side = true;
-
-	COLOR top, bottom, left, right, top_left, top_right, bot_left, bot_right, center;
-	center 		= board(r,c);
-	if(!top_side)									top 			= board(r-1,c);
-	if(!bottom_side) 							bottom 		= board(r+1,c);
-	if(!left_side) 								left 			= board(r,c-1);
-	if(!right_side) 							right 		= board(r,c+1);
-	if(!top_side&&!left_side) 		top_left	= board(r-1,c-1);
-	if(!top_side&&!right_side) 		top_right	= board(r-1,c+1);
-	if(!bottom_side&&!left_side) 	bot_left	= board(r+1,c-1);
-	if(!bottom_side&&!right_side) bot_right = board(r+1,c+1);
-
-	// positve and negative are the diagonals
-	int up_down, left_right, positive, negative;
-	up_down = 0; left_right = 0; positive = 0; negative = 0;
-	if( (dir==ALL||dir==UP) && top==center) up_down += calcStatus(r-1,c, UP);
-  if( (dir==ALL||dir==DOWN) && bottom==center) up_down += calcStatus(r+1,c, DOWN);
-	if( (dir==ALL||dir==LEFT) && left==center) left_right += calcStatus(r,c-1, LEFT);
-	if( (dir==ALL||dir==RIGHT) && right==center) left_right += calcStatus(r,c+1, RIGHT);
-	if( (dir==ALL||dir==UPRIGHT) && top_right==center) positive+= calcStatus(r-1,c+1, UPRIGHT);
-	if( (dir==ALL||dir==UPLEFT) && top_left==center) negative+= calcStatus(r-1,c-1,UPLEFT);
-	if( (dir==ALL||dir==DOWNLEFT) && bot_left==center) positive+= calcStatus(r+1,c-1,DOWNLEFT);
-	if( (dir==ALL||dir==DOWNRIGHT) && bot_right==center) negative+= calcStatus(r+1,c+1,DOWNRIGHT);
-
-	int cardinals = std::max(up_down,left_right);
-	int diagonals = std::max(positive,negative);
-	if(cardinals!=0||diagonals!=0) return std::max(cardinals, diagonals);
-	else return 1;
-}*/
-
 std::ostream& FIAR::operator<<(std::ostream& os, Game& bo) {
-  //COLOR* pieces = bo.board.proto_board;
 	os << "\r;  1 2 3 4 5 6 7 8 9 a b c d e f";
 	os << "\r\n";
 	for(int row = 0; row<15; row++) {
@@ -121,7 +81,7 @@ std::ostream& FIAR::operator<<(std::ostream& os, Game& bo) {
 		else if (row == 13) os << ";e ";
 		else if (row == 14) os << ";f ";
 		for(int column = 0; column<15; column++) {
-			COLOR pieces = bo.getBoard()(row,column);
+			COLOR pieces = bo.board(row,column);
 			if(pieces==EMPTY) os << "+ ";
 			else if(pieces==WHITE) os << "O ";
 			else os << "@ ";

@@ -68,11 +68,11 @@ class Game {
     bool          undo();
     const COLOR&  getStatus() const { return status; }
 
-		Board& getBoard() { return board; }
-
     int calcStatus(const int&, const int&, direction) const;
 
     int getNumberOfMoves() { return moves.size(); }
+
+    friend std::ostream& operator<<(std::ostream& os, Game& g);
 
 	private:
     Board             board;
