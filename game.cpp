@@ -1,5 +1,5 @@
 /*************************************\
- *  Project: Project 2 - Five-in-a-Row
+ *  Project: Project 2 - Five-in-a-Row 
  *
  *  Coder: Chris Polansky
  *  Contact: chris.polansky@tamu.edu
@@ -8,15 +8,72 @@
  *  Compiler: g++-4.6 4.6.3
  *
  *  License: Proprietary
- *
+ * 
 \*************************************/
 
-#include <algorithm>
 #include "game.h"
+#include "ai.h"
 
 using namespace FIAR;
 
-int Game::calcStatus(const int& r, const int & c, direction dir) const {
+Game::Game(const COLOR& c, const AI_TYPE& ait) : srv_color(c), end_status(EMPTY) {
+  try {
+    switch (ait) {
+      case EASY:
+      break;
+
+      case MED:
+      break;
+
+      case HARD:
+      break;
+      
+      default:
+        ai = new AIRand();
+      break;
+    }
+    
+  }
+  catch (std::bad_alloc&) {
+    delete ai;
+    throw;
+  }
+}
+
+bool
+Game::exec(const int& r, const int& c, const COLOR& s) {
+  if(   (!board.checkBounds(r, c))
+    ||  (board(r, c) != EMPTY)
+    ||  (end_status != EMPTY)
+    ||  (s == EMPTY)) { return false; }
+  else {
+    board(r, c) = s;
+    this->calcStatus(r, c);
+    moves.push(Move(r,c,s));
+
+    Move ai_move = ai->genMove(board);
+    board(ai_move.getRow(), ai_move.getCol()) = srv_color;
+    moves.push(ai_move);
+
+    return true;
+  }
+}
+
+bool
+Game::undo() {
+  if(moves.size() >= 2) {
+    for(int i = 0; i < 2; ++i) {
+      board(moves.top().getRow(), moves.top().getCol()) = EMPTY;
+      moves.pop();
+    }
+      return true;
+  }
+  else {
+    return false;
+  }
+}
+
+int Game::calcStatus(const int& r, const int& c) {
 	if(!board.checkBounds(r,c)) return 0;
 
 	COLOR center = board(r,c);
@@ -68,11 +125,10 @@ int Game::calcStatus(const int& r, const int & c, direction dir) const {
 	return std::max(std::max(row_count,column_count),std::max(positive_count,negative_count));
 }
 
-std::ostream& FIAR::operator<<(std::ostream& os, Game& bo) {
+std::ostream& FIAR::operator<<(std::ostream& os, Game& g) {
 	os << "\r;  1 2 3 4 5 6 7 8 9 a b c d e f";
 	os << "\r\n";
 	for(int row = 0; row<15; row++) {
-		//os << "\r";
 		if (row<9) os << ";" << row+1 << " ";
 		else if (row == 9) os << ";a ";
 		else if (row == 10) os << ";b ";
@@ -81,7 +137,7 @@ std::ostream& FIAR::operator<<(std::ostream& os, Game& bo) {
 		else if (row == 13) os << ";e ";
 		else if (row == 14) os << ";f ";
 		for(int column = 0; column<15; column++) {
-			COLOR pieces = bo.board(row,column);
+			COLOR pieces = g.board(row,column);
 			if(pieces==EMPTY) os << "+ ";
 			else if(pieces==WHITE) os << "O ";
 			else os << "@ ";

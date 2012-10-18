@@ -21,7 +21,7 @@ public:
   : port(p)
   {  server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
      server_socket = new tcp::socket(server_io_service);
-     server_game = new FIAR::Game;
+     server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
   }
 
   ~Server() { delete server_acceptor; delete server_socket; delete server_game; }
@@ -49,7 +49,7 @@ private:
       server_socket = new tcp::socket(server_io_service);
     }
     server_acceptor->accept(*server_socket);
-    server_game = new FIAR::Game;
+    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
   }
 
   void write_to_socket(std::string message) {
