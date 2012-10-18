@@ -1,5 +1,5 @@
 /*************************************\
- *  Project: Project 2 - Five-in-a-Row
+ *  Project: Project 2 - Five-in-a-Row 
  *
  *  Coder: Chris Polansky
  *  Contact: chris.polansky@tamu.edu
@@ -8,7 +8,7 @@
  *  Compiler: g++-4.6 4.6.3
  *
  *  License: Proprietary
- *
+ * 
 \*************************************/
 
 #ifndef _GAME_H_
@@ -55,11 +55,15 @@ class Move {
     COLOR               space;
 };
 
+enum END_STATUS {
+  NOBODY = 0,
+  WHITE_WIN,
+  BLACK_WIN,
+  TIE
+};
+
 enum AI_TYPE {
-  RAND = 0,
-  EASY,
-  MED,
-  HARD
+  RAND = 0
 };
 
 class AI {
@@ -72,19 +76,16 @@ class Game {
     Game(const COLOR&, const AI_TYPE&);
     ~Game() { delete ai; }
 
-    bool          exec(const int&, const int&, const COLOR&);
-    bool          undo();
-    const COLOR&  getStatus() const { return end_status; }
+    bool              exec(const int&, const int&, const COLOR&);
+    bool              undo();
+    const END_STATUS& getStatus() const { return end_status; }
 
-    int getNumberOfMoves() { return moves.size(); }
-    const Board& getBoard() { return board; }
+  private:
+    void calcStatus(const int&, const int&);
 
-    int calcStatus(const int&, const int&);
-
-private:
     Board             board;
     COLOR             srv_color;
-    COLOR             end_status;
+    END_STATUS        end_status;
     AI*               ai;
     std::stack<Move>  moves;
 
