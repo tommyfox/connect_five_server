@@ -34,6 +34,13 @@ bool is_hex(const char& c);
 int convert_hex_to_int(char& c);
 char convert_int_to_hex(int i);
 
+Server::Server(int p) : port(p)
+{  
+	server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
+    server_socket = new tcp::socket(server_io_service);
+    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+}
+
 void Server::server_loop() {
 	try
 	{
@@ -45,7 +52,6 @@ void Server::server_loop() {
 			display = false;
 			bool is_connected = true;
 			GameState game_state = INPROGRESS;
-			//bool game_over = false;
 			std::string client_message;
 			while(is_connected) {
 				// reads data from the socket
@@ -149,7 +155,7 @@ void Server::server_loop() {
 					}
 				}
 				// if the game_status flag is not INPROGRESS
-				else {
+				else if (game_state!=INPROGRESS) {
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");
 						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
@@ -198,6 +204,23 @@ void Server::display_board(std::string ai_move) {
 void Server::toggle_display() {
 	if(display) display = false;
 	else display = true;;
+}
+
+void Server::reset_connection() {
+	if(server_acceptor->is_open()) {
+      delete server_acceptor;
+      server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port));
+    }
+    if(server_socket->is_open()) {
+      delete server_socket;
+      server_socket = new tcp::socket(server_io_service);
+    }
+    server_acceptor->accept(*server_socket);
+    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+}
+
+void Server::write_to_socket() {
+    boost::asio::write(*server_socket, boost::asio::buffer(message));
 }
 
 void Server::help() {

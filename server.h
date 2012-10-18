@@ -17,12 +17,7 @@ enum GameState {
 
 class Server {
 public:
-  Server(int p)
-  : port(p)
-  {  server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
-     server_socket = new tcp::socket(server_io_service);
-     server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
-  }
+  Server(int p);
 
   ~Server() { delete server_acceptor; delete server_socket; delete server_game; }
 
@@ -39,22 +34,9 @@ private:
 
   void display_board(std::string ai_move);
 
-  void reset_connection() {
-    if(server_acceptor->is_open()) {
-      delete server_acceptor;
-      server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port));
-    }
-    if(server_socket->is_open()) {
-      delete server_socket;
-      server_socket = new tcp::socket(server_io_service);
-    }
-    server_acceptor->accept(*server_socket);
-    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
-  }
+  void reset_connection();
 
-  void write_to_socket(std::string message) {
-    boost::asio::write(*server_socket, boost::asio::buffer(message));
-  }
+  void write_to_socket(std::string message);
 
   void set_difficulty(Difficulty){}
   void toggle_display();
