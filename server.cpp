@@ -219,7 +219,7 @@ void Server::reset_connection() {
     server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
 }
 
-void Server::write_to_socket() {
+void Server::write_to_socket(std::string message) {
     boost::asio::write(*server_socket, boost::asio::buffer(message));
 }
 
