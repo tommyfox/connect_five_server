@@ -37,38 +37,6 @@ Move AIMinMax::getMove(const Board& b) {
 	}
 }
 
-
-void Tree::createTree(const Board& h, int depth) {
-	head = new TreeNode(board, MAX);
-	head.createChildren(depth);
-}
-if(depth>0) {
-	Board board = h;
-	NodeType node_type = MAX;
-
-	for(int i = 0; i<15; i++) {
-		for(int j = 0; j<15; j++) {
-			if((	board(i+1,j)
-			||	board(i-1,j)
-			||	board(i,j+1)
-			||	board(i,j-1)
-			||	board(i+1,j+1)
-			||	board(i+1,j-1)
-			||	board(i-1,j+1)
-			||	board(i-1,j-1))
-			&& 	board(i,j)==EMPTY ) {
-				board(i,j) = WHITE;
-				head = new TreeNode(board, node_type, Move(i,j,WHITE) );
-				head.createChildren(depth-1);
-			}
-		}
-	}
-}
-
-void TreeNode::createChildren(int depth);
-
-
-
 class Tree {
 public:
 	Tree();
@@ -105,5 +73,34 @@ private:
 TreeNode::~TreeNode() {
 	for(int i = 0; i<children.size(); i++) {
 		delete children[i];
+	}
+}
+
+void Tree::createTree(const Board& h, int depth) {
+	head = new TreeNode(board, MAX);
+	head.createChildren(depth);
+}
+
+void TreeNode::createChildren(int depth) {
+	if(depth>0) {
+		NodeType node_type WRITE SOEM FUNTION OF THIS;
+	
+		for(int i = 0; i<15; i++) {
+			for(int j = 0; j<15; j++) {
+				if((	board(i+1,j)
+				||	board(i-1,j)
+				||	board(i,j+1)
+				||	board(i,j-1)
+				||	board(i+1,j+1)
+				||	board(i+1,j-1)
+				||	board(i-1,j+1)
+				||	board(i-1,j-1))
+				&& 	board(i,j)==EMPTY ) {
+					board(i,j) = WHITE;
+					head = new TreeNode(board, node_type, Move(i,j,WHITE) );
+					head.createChildren(depth-1);
+				}
+			}
+		}
 	}
 }
