@@ -125,13 +125,22 @@ void Game::calcStatus(const int& r, const int& c) {
 bool  Board::operator==(const Board& a) const {
 	for(int i = 0; i<15; i++) {
 		for(int j = 0; j<15; j++) {
-			int index = i*15+j;
-			COLOR * temp = proto_board;
-			temp = temp + index;
-			if(*temp!=a(i,j)) return false;
+			int index = i*15 + j;
+			if(proto_board[index]!=a(i,j)) return false;
 		}
 	}
 	return true;
+}
+
+void
+Board::operator=(const Board& a) {
+int size = proto_board.size();
+if(size < 225) while(++size!=225) proto_board.push_back(EMPTY);
+	for(int i = 0; i<15; i++) {
+		for(int j = 0; j<15; j++) {
+			setColor(i,j,a.get_color(i,j));
+		}
+	}
 }
 
 std::ostream& FIAR::operator<<(std::ostream& os, Game& g) {

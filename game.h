@@ -16,6 +16,7 @@
 
 #include <stdexcept>
 #include <cstdlib>
+#include <vector>
 #include <stack>
 #include <iostream>
 
@@ -31,15 +32,19 @@ enum COLOR {
 class Board {
   public:
     Board() throw (std::bad_alloc);
-    ~Board() { delete[] proto_board; }
+    ~Board() { }
 
     bool          checkBounds(const int&, const int&) const;
+    COLOR         get_color(const int&, const int&) const;
     COLOR&        operator()(const int&, const int&) throw (std::out_of_range);
     const COLOR&  operator()(const int&, const int&) const throw (std::out_of_range);
+    void setColor(int i, int j, COLOR c) {proto_board[15*i+j] = c;}
+
     bool    	  operator==(const Board& a) const;
+    void          operator=(const Board& a);
 
   private:
-    COLOR* proto_board;
+    std::vector<COLOR> proto_board;
 };
 
 class Move {
@@ -50,6 +55,10 @@ class Move {
     const int&    getRow() const { return loc.first; }
     const int&    getCol() const { return loc.second; }
     const COLOR&  getColor() const { return space; }
+
+    void setRow(int r) { loc.first = r; }
+    void setCol(int c) { loc.second = c; }
+    void setColor(COLOR c) {space = c;}
 
   private:
     std::pair<int, int> loc;
@@ -96,13 +105,12 @@ class Game {
 
 inline Board::Board() throw (std::bad_alloc) {
   try {
-    proto_board = new COLOR[255];
-    for(unsigned i = 0; i < 255; ++i) {
-      proto_board[i] = EMPTY;
+    for(unsigned i = 0; i < 225; ++i) {
+      proto_board.push_back(EMPTY);
     }
   }
-  catch (std::bad_alloc&) {
-    delete[] proto_board;
+  catch (...) {
+//    delete[] proto_board;
     throw;
   }
 }
@@ -111,6 +119,12 @@ inline bool
 Board::checkBounds(const int& r, const int& c) const {
   if((r > 14) || (r < 0) || (c > 14) || (c < 0)) return false;
     else return true;
+}
+
+inline COLOR
+Board::get_color(const int& r, const int& c) const {
+  if(!(this->checkBounds(r,c))) throw std::out_of_range("operator() subscript out of bounds");
+  return proto_board[(r*15)+c];
 }
 
 inline COLOR&

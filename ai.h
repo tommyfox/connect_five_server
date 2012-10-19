@@ -15,9 +15,17 @@
 #define _AI_H_
 
 #include "game.h"
-#include "aiminmax.h"
 
 namespace FIAR {
+
+class node_data {
+public:
+	node_data() :move(1,1,EMPTY) { }
+	~node_data() { }
+	Board board;
+	Move move;
+	double value;
+};
 
 class AIRand : public AI {
   public:
@@ -27,8 +35,6 @@ class AIRand : public AI {
 class AIMinMax : public AI {
   public:
     virtual Move genMove(const Board&);
-  private:
-    Tree move_tree;
 };
 
 // End namespace FIAR
