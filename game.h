@@ -36,6 +36,7 @@ class Board {
     bool          checkBounds(const int&, const int&) const;
     COLOR&        operator()(const int&, const int&) throw (std::out_of_range);
     const COLOR&  operator()(const int&, const int&) const throw (std::out_of_range);
+    bool    	  operator==(const Board& a) const;
 
   private:
     COLOR* proto_board;

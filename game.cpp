@@ -117,6 +117,18 @@ void Game::calcStatus(const int& r, const int& c) {
   }
 }
 
+bool  Board::operator==(const Board& a) const {
+	for(int i = 0; i<15; i++) {
+		for(int j = 0; j<15; j++) {
+			int index = i*15+j;
+			COLOR * temp = proto_board;
+			temp = temp + index;
+			if(*temp!=a(i,j)) return false;
+		}
+	}
+	return true;
+}
+
 std::ostream& FIAR::operator<<(std::ostream& os, Game& g) {
   os << "1 2 3 4 5 6 7 8 9 a b c d e f\n";
   for(int i = 0; i < 15; ++i) {

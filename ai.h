@@ -15,6 +15,7 @@
 #define _AI_H_
 
 #include "game.h"
+#include "aiminmax.h"
 
 namespace FIAR {
 

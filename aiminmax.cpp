@@ -1,13 +1,13 @@
 #include "ai.h"
 
-Move AIMinMax::getMove(const Board& b) {
+Move AIMinMax::genMove(const Board& b) {
 	// if the tree exists
 	if(move_tree.get_head()!=NULL) {
 		const TreeNode* head = move_tree.get_head();
 		bool found_child = false;
 		for(int i = 0; i < head->number_of_children(); i++) {
-			const TreeNode* child = head.get_child(i);
-			if(child.get_board()==b) {
+			TreeNode* child = head->get_child(i);
+			if(child->get_board()==b) {
 				move_tree.pruneTree(child);
 				found_child = true;
 				break;
@@ -15,8 +15,7 @@ Move AIMinMax::getMove(const Board& b) {
 		}
 		// if no child was found
 		if(!found_child) {
-			delete tree;
-			move_tree.createTree(b);
+			move_tree.createTree(b,3);
 		}
 		// if a child was found
 		else {
@@ -26,37 +25,38 @@ Move AIMinMax::getMove(const Board& b) {
 	}
 	// if the tree does not exist
 	else {
-		move_tree.createTree(b);
+		move_tree.createTree(b,3);
 	}
 }
 
 void Tree::pruneTree(TreeNode* child) {
 	// already checked to see if a child exists in the gen move function
-	for(int i = 0; i<children.size(); i++) {
-		if(head->get_child()==child) head->removeChild(i);
+	for(int i = 0; i< head->number_of_children(); i++) {
+		if(head->get_child(i)==child) head->removeChild(i);
 	}
 	delete head;
 	head = child;
 }
 
-TreeNode::TreeNode(TreeNode* h) {
+TreeNode::TreeNode() : move(1,1,FIAR::WHITE) {}
+
+
+TreeNode::TreeNode(TreeNode* h) : move(h->get_move()) {
 	board = h->get_board_copy();
-	move = h->get_move();
 	node_type = h->get_node_type();
 	for(int i = 0; i< h->number_of_children(); i++) {
-		TreeNode* child = new Treenode(h->getChild(i));
+		TreeNode* child = new TreeNode(h->get_child(i));
 		children.push_back(child);
 	}
 }
 
-Tree::TreeNode(Board b, NodeType n) {
+TreeNode::TreeNode(Board b, NodeType n) : move(1,1,FIAR::WHITE) {
 	board = b;
 	node_type = n;
 }
 
-Tree::TreeNode(Board b, NodeType n, move m) {
+TreeNode::TreeNode(Board b, NodeType n, Move m) :move(m) {
 	TreeNode(b,n);
-	move = m;
 }
 
 TreeNode::~TreeNode() {
@@ -66,7 +66,8 @@ TreeNode::~TreeNode() {
 }
 
 void Tree::createTree(const Board& h, int depth) {
-	head = new TreeNode(board, MAX);
+	delete head;
+	head = new TreeNode(h, MAX);
 	head->createChildren(depth);
 }
 
@@ -110,8 +111,8 @@ void TreeNode::extend() {
 		}
 	}
 }
-/*
+
 void Tree::calculateTree() {
 	
 }
-*/
+
