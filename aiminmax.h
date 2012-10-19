@@ -36,7 +36,7 @@ private:
 
 class Tree {
 public:
-	Tree();
+	Tree() { head = new TreeNode(); }
 	Tree(TreeNode* h) {head = new TreeNode(h->get_board_copy(), h->get_node_type(), h->get_move()); }
 	~Tree() { delete head; }
 

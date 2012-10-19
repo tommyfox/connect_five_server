@@ -38,12 +38,12 @@ Server::Server(int p) : port(p)
 {  
 	server_acceptor = new tcp::acceptor(server_io_service, tcp::endpoint(tcp::v4(), port)); 
     server_socket = new tcp::socket(server_io_service);
-    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+    server_game = new FIAR::Game(FIAR::WHITE, FIAR::MINMAX);
 }
 
 void Server::server_loop() {
-	try
-	{
+//	try
+//	{
 		srand(time(NULL));
 		boost::array<char, 400> buf;
 		for(;;) {
@@ -131,12 +131,12 @@ void Server::server_loop() {
 					display = false;
 					if(client_message=="y") {
 						write_to_socket("\rOK\r\n");
-						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+						server_game = new FIAR::Game(FIAR::WHITE, FIAR::MINMAX);
 					}
 					else if(client_message=="n") {
 						write_to_socket("\rOK, disconnecting\r\n");
 						is_connected = false;
-						server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+						server_game = new FIAR::Game(FIAR::WHITE, FIAR::MINMAX);
 					}
 					else {
 						write_to_socket("\rInvalid command\r\n");
@@ -158,11 +158,11 @@ void Server::server_loop() {
 				ai_move.flush();
 			}
 		}
-	}
-	catch(std::exception& e)
+//	}
+/*	catch(std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-	}
+	}*/
 }
 
 void Server::display_board(std::string ai_move) {
@@ -189,7 +189,7 @@ void Server::reset_connection() {
       server_socket = new tcp::socket(server_io_service);
     }
     server_acceptor->accept(*server_socket);
-    server_game = new FIAR::Game(FIAR::WHITE, FIAR::RAND);
+    server_game = new FIAR::Game(FIAR::WHITE, FIAR::MINMAX);
 }
 
 void Server::write_to_socket(std::string message) {

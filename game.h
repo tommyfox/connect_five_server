@@ -64,7 +64,8 @@ enum END_STATUS {
 };
 
 enum AI_TYPE {
-  RAND = 0
+  RAND = 0,
+  MINMAX
 };
 
 class AI {

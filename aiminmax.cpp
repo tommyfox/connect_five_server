@@ -27,6 +27,8 @@ Move AIMinMax::genMove(const Board& b) {
 	else {
 		move_tree.createTree(b,3);
 	}
+	Move move_return(1,1,FIAR::WHITE);
+	return move_return;
 }
 
 void Tree::pruneTree(TreeNode* child) {
@@ -78,6 +80,7 @@ void TreeNode::createChildren(int depth) {
 		else n_type = MAX;
 		for(int i = 0; i<15; i++) {
 			for(int j = 0; j<15; j++) {
+				// CHECK FOR BOUNDS HERE
 				if((	board(i+1,j)
 				||	board(i-1,j)
 				||	board(i,j+1)

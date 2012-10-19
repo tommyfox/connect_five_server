@@ -19,7 +19,12 @@ using namespace FIAR;
 Game::Game(const COLOR& c, const AI_TYPE& ait) : srv_color(c), end_status(NOBODY) {
   try {
     switch (ait) {
+      case(MINMAX):
+        std::cerr << "got to the minxmax case\n";
+        ai = new AIMinMax();
+        break;
       default:
+	std::cerr << "got to the default case\n";
         ai = new AIRand();
       break;
     }
