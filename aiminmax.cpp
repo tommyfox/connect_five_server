@@ -1,38 +1,9 @@
 #include <boost/property_tree/ptree.hpp>
+#include "ai.h"
 
 enum NodeType {
 	MAX, MIN
 };
-
-Move AIMinMax::getMove(const Board& b) {
-	// if the tree exists
-	if(move_tree.get_head()!=NULL) {
-		const TreeNode* head = move_tree.get_head();
-		bool found_child = false;
-		for(int i = 0; i < head->number_of_children(); i++) {
-			const TreeNode* child = head.get_child(i);
-			if(child.get_board()==b) {
-				move_tree.pruneTree(child);
-				found_child = true;
-				break;
-			}
-		}
-		// if no child was found
-		if(!found_child) {
-			delete tree;
-			move_tree.createTree(b);
-		}
-		// if a child was found
-		else {
-			move_tree.extendTree();
-		}
-		move_tree.calculateTree();
-	}
-	// if the tree does not exist
-	else {
-		move_tree.createTree(b);
-	}
-}
 
 class Tree {
 public:
@@ -74,6 +45,36 @@ private:
 	int value;
 	Nodetype node_type;
 };
+
+Move AIMinMax::getMove(const Board& b) {
+	// if the tree exists
+	if(move_tree.get_head()!=NULL) {
+		const TreeNode* head = move_tree.get_head();
+		bool found_child = false;
+		for(int i = 0; i < head->number_of_children(); i++) {
+			const TreeNode* child = head.get_child(i);
+			if(child.get_board()==b) {
+				move_tree.pruneTree(child);
+				found_child = true;
+				break;
+			}
+		}
+		// if no child was found
+		if(!found_child) {
+			delete tree;
+			move_tree.createTree(b);
+		}
+		// if a child was found
+		else {
+			move_tree.extendTree();
+		}
+		move_tree.calculateTree();
+	}
+	// if the tree does not exist
+	else {
+		move_tree.createTree(b);
+	}
+}
 
 void Tree::pruneTree(TreeNode* child) {
 	// already checked to see if a child exists in the gen move function
