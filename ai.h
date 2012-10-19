@@ -23,6 +23,15 @@ class AIRand : public AI {
     virtual Move genMove(const Board&);
 };
 
+#include <boost/property_tree/ptree.hpp>
+
+class AIMinMax : public AI {
+  public:
+    virtual Move genMove(const Board&);
+  private:
+    Tree move_tree;
+};
+
 // End namespace FIAR
 }
 
