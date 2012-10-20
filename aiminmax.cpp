@@ -93,6 +93,21 @@ int enemies_surrounding(int, int , Board);
 int friendly_surrounding(int, int, Board);
 
 node_data heuristic(node_data node) {
+	/* Thomas's Proposed version: instead of "either-or" construction, all possibilities are considered
+	 * and all possibilities add to node value.  All values should be modified according to testing results.
+	 * Additionally, code to detect surrending units need be modified to determine space beyond surrounding pieces
+	 * On second thought, the "surrounding" functions need to be completely rewritten...
+
+	int friendlies = friendly_surrounding(node.move.getRow(), node.move.getCol(), node.board);
+	int enemies = enemies_surrounding(node.move.getRow(), node.move.getCol(), node.board);
+
+	if (friendlies >= 5) node.value += 99; //Node secures win
+	if (enemies >= 4) node.value += 50;    //Node would secure enemy win next turn
+	if (enemies >= 3) node.value += 25;    //Node need be blocked preemptively
+	if (
+	
+	
+	*/
 	int friendlies = friendly_surrounding(node.move.getRow(), node.move.getCol(), node.board);
 	int enemies = enemies_surrounding(node.move.getRow(), node.move.getCol(), node.board);
 	if(friendlies>=5) node.value=999;
